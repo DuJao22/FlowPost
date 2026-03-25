@@ -2,9 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
-import fs from 'fs';
-import apiRoutes from './src/routes/api.js';
-import { getPageById, incrementViews } from './src/database/db.js';
+
+// Importando as funções serverless (simulando a Vercel)
+import uploadHandler from './api/upload.js';
+import viewHandler from './api/view.js';
+import pagesHandler from './api/pages.js';
 
 async function startServer() {
   const app = express();
@@ -20,47 +22,18 @@ async function startServer() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Request logging middleware
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-    }
-    next();
+  // Simulador de rotas da Vercel
+  app.post('/api/upload', (req, res) => uploadHandler(req as any, res as any));
+  app.get('/api/pages', (req, res) => pagesHandler(req as any, res as any));
+  app.delete('/api/pages/:id', (req, res) => {
+    req.query.id = req.params.id;
+    return pagesHandler(req as any, res as any);
   });
-
-  // Ensure uploads directory exists
-  const uploadsDir = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-  }
-
-  // API Routes
-  app.use('/api', apiRoutes);
-
-  // View endpoint (this is the core feature)
-  app.get('/view/:id', async (req, res) => {
-    try {
-      const page = getPageById(req.params.id);
-      
-      if (!page) {
-        return res.status(404).send('<h1>Page not found</h1>');
-      }
-
-      // Check expiration
-      if (page.expires_at && new Date(page.expires_at) < new Date()) {
-        return res.status(410).send('<h1>This page has expired</h1>');
-      }
-
-      // Increment views
-      incrementViews(page.id);
-
-      // Send HTML
-      res.setHeader('Content-Type', 'text/html');
-      res.send(page.html_content);
-    } catch (error) {
-      console.error('Error rendering page:', error);
-      res.status(500).send('<h1>Internal Server Error</h1>');
-    }
+  
+  // Rota de visualização (Vercel usa query params ou caminhos dinâmicos)
+  app.get('/view/:id', (req, res) => {
+    req.query.id = req.params.id;
+    return viewHandler(req as any, res as any);
   });
 
   // Vite middleware for development
@@ -79,7 +52,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`[FlowHost] Serverless-Ready Server running on http://localhost:${PORT}`);
   });
 }
 
