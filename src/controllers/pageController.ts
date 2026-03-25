@@ -5,6 +5,12 @@ import { savePage, getAllPages, deletePage } from '../database/db.js';
 export const uploadPage = (req: Request, res: Response) => {
   try {
     let htmlContent = '';
+    console.log('Upload request received:', {
+      contentType: req.headers['content-type'],
+      hasBody: !!req.body,
+      hasFile: !!req.file,
+      bodyKeys: req.body ? Object.keys(req.body) : []
+    });
 
     // Check if HTML is sent via JSON
     if (req.body && req.body.html) {
@@ -16,6 +22,7 @@ export const uploadPage = (req: Request, res: Response) => {
     }
 
     if (!htmlContent) {
+      console.warn('Upload failed: No HTML content provided');
       return res.status(400).json({ success: false, error: 'No HTML content provided' });
     }
 
