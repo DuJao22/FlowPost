@@ -4,11 +4,12 @@ import sqlite3 from 'better-sqlite3';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
-// Inicialização do banco (padrão serverless)
-const dbPath = path.join(process.cwd(), 'flowhost.db');
+// Inicialização do banco (Otimizado para Render)
+// No Render, você pode anexar um disco persistente e definir DATABASE_PATH=/data/flowhost.db
+const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'flowhost.db');
 const db: Database = new sqlite3(dbPath);
 
-// Garantir que a tabela existe
+// Garantir que a tabela existe (necessário pois /tmp é efêmero)
 db.exec(`
   CREATE TABLE IF NOT EXISTS pages (
     id TEXT PRIMARY KEY,

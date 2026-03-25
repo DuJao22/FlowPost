@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { Toaster, toast } from 'sonner';
-import { Copy, ExternalLink, Trash2, Upload, FileCode2, Eye, LayoutDashboard, Server, Download } from 'lucide-react';
+import { Copy, ExternalLink, Trash2, Upload, FileCode2, Eye, LayoutDashboard, Server, Download, AlertCircle } from 'lucide-react';
 
 interface Page {
   id: string;

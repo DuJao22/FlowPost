@@ -2,8 +2,19 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import sqlite3 from 'better-sqlite3';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'flowhost.db');
+const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'flowhost.db');
 const db = new sqlite3(dbPath);
+
+// Inicializar tabela se não existir (necessário pois /tmp é efêmero)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS pages (
+    id TEXT PRIMARY KEY,
+    html TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME,
+    views INTEGER DEFAULT 0
+  )
+`);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query;
