@@ -413,6 +413,23 @@ Content-Type: application/json
           </div>
         )}
       </main>
+
+      {/* Footer Credits */}
+      <footer className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-neutral-200 mt-auto">
+        <div className="flex flex-col items-center justify-center text-center space-y-2">
+          <p className="text-sm text-neutral-500">
+            Desenvolvido por <span className="font-semibold text-neutral-900">João Layon</span>, CEO da <span className="font-semibold text-blue-600">Ds Company</span>
+          </p>
+          <a 
+            href="https://www.instagram.com/dscompany1_/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-pink-600 transition-colors"
+          >
+            <span className="font-medium">Siga no Instagram: @dscompany1_</span>
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
