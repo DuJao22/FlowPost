@@ -9,12 +9,20 @@ const db = new sqlite3(dbPath);
 db.exec(`
   CREATE TABLE IF NOT EXISTS pages (
     id TEXT PRIMARY KEY,
+    name TEXT,
     html TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     expires_at DATETIME,
     views INTEGER DEFAULT 0
   )
 `);
+
+// Migração para adicionar a coluna 'name' caso o banco já exista
+try {
+  db.exec("ALTER TABLE pages ADD COLUMN name TEXT");
+} catch (e) {
+  // A coluna já existe ou outro erro (ignorar)
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query;

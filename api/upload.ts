@@ -13,12 +13,20 @@ const db: Database = new sqlite3(dbPath);
 db.exec(`
   CREATE TABLE IF NOT EXISTS pages (
     id TEXT PRIMARY KEY,
+    name TEXT,
     html TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     expires_at DATETIME,
     views INTEGER DEFAULT 0
   )
 `);
+
+// Migração para adicionar a coluna 'name' caso o banco já exista
+try {
+  db.exec("ALTER TABLE pages ADD COLUMN name TEXT");
+} catch (e) {
+  // A coluna já existe ou outro erro (ignorar)
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Configuração de CORS para Vercel
@@ -40,7 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { html, expiresInDays } = req.body;
+    const { html, expiresInDays, name } = req.body;
 
     if (!html) {
       return res.status(400).json({
@@ -50,6 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const id = uuidv4().substring(0, 8);
+    const pageName = name || `Page ${id}`;
     let expiresAt = null;
 
     if (expiresInDays && parseInt(expiresInDays) > 0) {
@@ -58,8 +67,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       expiresAt = date.toISOString();
     }
 
-    const stmt = db.prepare('INSERT INTO pages (id, html, expires_at) VALUES (?, ?, ?)');
-    stmt.run(id, html, expiresAt);
+    const stmt = db.prepare('INSERT INTO pages (id, name, html, expires_at) VALUES (?, ?, ?, ?)');
+    stmt.run(id, pageName, html, expiresAt);
 
     console.log(`[Vercel Serverless] Page created: ${id}`);
 
