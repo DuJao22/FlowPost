@@ -449,17 +449,28 @@ Pegue essa URL e me entregue APENAS o link final clicável para eu acessar o sit
                 API Integration (FlowAI)
               </h3>
               <p className="text-sm text-blue-300/80 mb-4">
-                You can also upload pages programmatically via API:
+                You can also upload pages programmatically via API. 
+                <br/><strong className="text-yellow-400">⚠️ IMPORTANTE:</strong> Ao enviar via código (fetch/axios) ou automação (n8n/Make), certifique-se de passar a variável que contém o HTML real, e não uma string literal com o nome da variável.
               </p>
               <div className="bg-black/50 border border-neutral-800 rounded-lg p-4 overflow-x-auto">
                 <pre className="text-xs text-neutral-300 font-mono">
-{`POST /api/upload
-Content-Type: application/json
+{`// Exemplo correto de envio via JavaScript (fetch):
 
-{
+// 1. Sua variável com o código HTML gerado pela IA
+const respostaDaIA = "<!DOCTYPE html><html>...código gerado..."; 
+
+// 2. Monte o payload passando a variável SEM aspas em volta
+const payload = {
   "name": "My FlowAI Page",
-  "html": "<html><body><h1>Hello from FlowAI</h1></body></html>"
-}`}
+  "html": respostaDaIA 
+};
+
+// 3. Faça o POST
+fetch("/api/upload", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+});`}
                 </pre>
               </div>
             </div>
